@@ -7,6 +7,13 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from core import models
+from core.models import Compra
+@admin.register(Compra)
+class CompraAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'status')
+    ordering = ('usuario', 'status')
+    list_per_page = 10
+
 
 
 class UserAdmin(BaseUserAdmin):
@@ -49,6 +56,7 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+
 
 
 admin.site.register(models.User, UserAdmin)
