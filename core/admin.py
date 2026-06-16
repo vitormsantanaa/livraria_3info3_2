@@ -8,12 +8,20 @@ from django.utils.translation import gettext_lazy as _
 
 from core import models
 from core.models import Compra
+
+from core.models.compra import ItensCompra
+class ItensCompraInline(admin.TabularInline):
+    model = ItensCompra
+    extra = 1 
+
 @admin.register(Compra)
 class CompraAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'status')
+    search_fields = ('usuario', 'status')
+    list_filter = ('usuario', 'status')
     ordering = ('usuario', 'status')
     list_per_page = 10
-
+    inlines = [ItensCompraInline]
 
 
 class UserAdmin(BaseUserAdmin):
