@@ -10,6 +10,6 @@ class CompraViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return CompraListSerializer
-        if self.action in {'create', 'update'}:
+        if self.action in ('create', 'update'):
             return CompraCreateUpdateSerializer
         return CompraSerializer
