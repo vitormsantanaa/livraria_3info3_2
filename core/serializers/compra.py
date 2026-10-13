@@ -1,6 +1,7 @@
 from rest_framework.serializers import (
     CharField,
     CurrentUserDefault,
+    DateTimeField,
     HiddenField,
     ModelSerializer, 
     SerializerMethodField,
@@ -88,6 +89,6 @@ class CompraSerializer(ModelSerializer):
     class Meta:
         model = Compra
         fields = '__all__'
-        fields = ('id', 'usuario', 'status', 'total', 'itens')
+        fields = ('id', 'usuario', 'status', 'total', 'data', 'itens')
         
 
