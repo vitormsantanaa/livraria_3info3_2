@@ -8,6 +8,7 @@ from core.serializers import (
     LivroListSerializer,
     LivroRetrieveSerializer,
     LivroSerializer,
+    LivroListRetrieveSerializer,
 )
 from drf_spectacular.utils import extend_schema
 
