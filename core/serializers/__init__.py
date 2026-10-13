@@ -5,7 +5,8 @@ from .user import UserRegistrationSerializer, UserSerializer
 from .livro import (
     LivroAlterarPrecoSerializer,
     LivroListSerializer,
-    LivroRetrieveSerializer,
+    LivroListRetrieveSerializer,
+    LivroMaisVendidoSerializer,
     LivroSerializer,
 )
 from .compra import (
