@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
@@ -17,6 +18,14 @@ from core.serializers.compra import (
 
 class CompraViewSet(ModelViewSet):
     queryset = Compra.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CompraListSerializer
+        if self.action in ('create', 'update', 'partial_update'):
+            return CompraCreateUpdateSerializer
+        return CompraSerializer
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['usuario__email', 'status', 'data']
@@ -28,7 +37,7 @@ class CompraViewSet(ModelViewSet):
         usuario = self.request.user
         if usuario.is_superuser:
             return Compra.objects.all()
-        if usuario.groups.filter(name='administradores'):
+        if usuario.groups.filter(name='administradores').exists():
             return Compra.objects.all()
         return Compra.objects.filter(usuario=usuario)
 
@@ -44,10 +53,10 @@ class CompraViewSet(ModelViewSet):
         compra = self.get_object()
 
         # Verifica se a compra já foi finalizada
-        if compra.status == Compra.StatusCompra.FINALIZADO:
+        if compra.status != Compra.StatusCompra.CARRINHO:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
-                data={'status': 'Compra já finalizada'}
+                data={'status': 'Apenas compras no carrinho podem ser finalizadas'}
             )
 
         for item in compra.itens.all():
