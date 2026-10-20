@@ -9,6 +9,7 @@ class UserSerializer(ModelSerializer):
         model = User
         fields = ['id', 'email', 'name', 'is_active', 'is_staff', 'is_superuser', 'last_login', 'groups']
         depth = 1
+        read_only_fields = ('is_active', 'is_staff', 'is_superuser', 'last_login', 'groups')
 
 
 class UserRegistrationSerializer(ModelSerializer):
