@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -13,7 +13,7 @@ from core.serializers import UserRegistrationSerializer, UserSerializer
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     @extend_schema(
         summary="Dados do usuário autenticado",
