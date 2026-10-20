@@ -1,10 +1,14 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from core.models.categoria import Categoria
-from core.serializers import CategoriaSerializer
+from rest_framework.filters import OrderingFilter
+
+from core.models import Editora
+from core.serializers import EditoraSerializer
 
 
-class CategoriaViewSet(ModelViewSet):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [IsAuthenticated]
+class EditoraViewSet(ModelViewSet):
+    queryset = Editora.objects.all()
+    serializer_class = EditoraSerializer
+
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['nome']
+    ordering = ['nome']

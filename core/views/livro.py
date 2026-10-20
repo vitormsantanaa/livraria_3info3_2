@@ -14,16 +14,19 @@ from core.serializers import (
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from django.db.models import Q, Sum
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets
 
 class LivroViewSet(ModelViewSet):
     queryset = Livro.objects.all()
     serializer_class = LivroSerializer  
 
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ['categoria__descricao', 'editora__nome']
     search_fields = ['titulo']
+    ordering_fields = ['preco', 'titulo']
+    ordering = ['titulo']
+    
 
     @extend_schema(
         summary="Ajusta o estoque de um livro",

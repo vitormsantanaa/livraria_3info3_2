@@ -1,4 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
 from core.models import Compra
 from django.utils import timezone
@@ -12,7 +14,16 @@ from core.serializers.compra import (
     CompraSerializer,
 )
 
+
 class CompraViewSet(ModelViewSet):
+    queryset = Compra.objects.all()
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['usuario__email', 'status', 'data']
+    search_fields = ['usuario__email']
+    ordering_fields = ['usuario__email', 'status', 'data']
+    ordering = ['-data']
+
     def get_queryset(self):
         usuario = self.request.user
         if usuario.is_superuser:
@@ -20,7 +31,6 @@ class CompraViewSet(ModelViewSet):
         if usuario.groups.filter(name='administradores'):
             return Compra.objects.all()
         return Compra.objects.filter(usuario=usuario)
-    queryset = Compra.objects.all()
 
     @extend_schema(
         request=None,
@@ -61,4 +71,7 @@ class CompraViewSet(ModelViewSet):
         compra.status = Compra.StatusCompra.FINALIZADO
         compra.save()
 
-        return Response(status=status.HTTP_200_OK, data={'status': 'Compra finalizada'})
+        return Response(
+            status=status.HTTP_200_OK,
+            data={'status': 'Compra finalizada'}
+        )
