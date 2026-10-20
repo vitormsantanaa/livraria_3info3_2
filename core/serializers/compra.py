@@ -15,6 +15,7 @@ class ItensCompraCreateUpdateSerializer(ModelSerializer):
     class Meta:
         model = ItensCompra
         fields = ('livro', 'quantidade', 'preco')
+        read_only_fields = ('preco',)
 
     def validate_quantidade(self, quantidade):
         if quantidade <= 0:
@@ -24,6 +25,8 @@ class ItensCompraCreateUpdateSerializer(ModelSerializer):
         return quantidade
 
     def validate(self, item):
+        if 'quantidade' not in item or 'livro' not in item:
+            raise ValidationError('Informe livro e quantidade.')
         if item['quantidade'] > item['livro'].quantidade:
             raise ValidationError(
                 'Quantidade de itens maior do que a quantidade em estoque.'
@@ -75,6 +78,8 @@ class CompraCreateUpdateSerializer(ModelSerializer):
             ).first()
 
             if item_existente:
+                if item_existente.quantidade + item['quantidade'] > item['livro'].quantidade:
+                    raise ValidationError('Quantidade acumulada maior do que o estoque disponível.')
                 item_existente.quantidade += item['quantidade']
                 item_existente.preco = item['livro'].preco
                 item_existente.save()
