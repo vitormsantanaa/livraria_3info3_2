@@ -75,4 +75,4 @@ class ItensCompra(models.Model):
 
     @property
     def total(self):
-        return self.livro.preco * self.quantidade
+        return self.preco * self.quantidade
