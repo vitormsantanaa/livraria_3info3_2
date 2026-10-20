@@ -9,8 +9,9 @@ from core.serializers import (
     LivroSerializer,
     LivroListRetrieveSerializer,
     LivroMaisVendidoSerializer,
+    LivroAjustarEstoqueSerializer,
 )
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from django.db.models import Q, Sum
 
 class LivroViewSet(ModelViewSet):
@@ -18,27 +19,40 @@ class LivroViewSet(ModelViewSet):
     serializer_class = LivroSerializer  # Seu serializer padrão
 
     @extend_schema(
-        summary="Lista os livros mais vendidos",
-        description="Retorna os livros que venderam mais de 10 unidades.",
+        summary="Ajusta o estoque de um livro",
+        description="Aumenta ou diminui o estoque; impede resultado negativo.",
+        request=LivroAjustarEstoqueSerializer,
         responses={
-            200: LivroMaisVendidoSerializer(many=True)
+            200: OpenApiResponse(
+                response=None,
+                description="Estoque ajustado com sucesso.",
+                examples=[
+                    {
+                        "status": "Quantidade ajustada com sucesso",
+                        "novo_estoque": 30
+                    }
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Erro de validação",
+                examples=[
+                    {"quantidade": "A quantidade em estoque não pode ser negativa."}
+                ]
+            ),
         },
-    )
-    @action(detail=False, methods=['get'])
-    def mais_vendidos(self, request):
-        livros = Livro.objects.annotate(
-            total_vendidos=Sum(
-                'itens_compra__quantidade',
-                filter=Q(itens_compra__compra__status=Compra.StatusCompra.FINALIZADO)
-            )
-        ).filter(total_vendidos__gt=10).order_by('-total_vendidos')
+        )
+    @action(detail=True, methods=['post'])
+    def ajustar_estoque(self, request, pk=None):
+        livro = self.get_object()
 
-        serializer = LivroMaisVendidoSerializer(livros, many=True)
+        serializer = LivroAjustarEstoqueSerializer(data=request.data, context={'livro': livro})
+        serializer.is_valid(raise_exception=True)
 
-        if not serializer.data:
-            return Response(
-                {"detail": "Nenhum livro excedeu 10 vendas."},
-                status=status.HTTP_200_OK
-            )
+        quantidade_ajuste = serializer.validated_data['quantidade']
+        livro.quantidade += quantidade_ajuste
+        livro.save()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'status': 'Quantidade ajustada com sucesso', 'novo_estoque': livro.quantidade},
+            status=status.HTTP_200_OK
+        )

@@ -1,3 +1,4 @@
+from core import serializers
 from rest_framework.serializers import (
     DecimalField,
     IntegerField,
@@ -39,3 +40,14 @@ class LivroMaisVendidoSerializer(ModelSerializer):
     class Meta:
         model = Livro
         fields = ('id', 'titulo', 'total_vendidos')
+
+class LivroAjustarEstoqueSerializer(Serializer):
+    quantidade = serializers.IntegerField()
+
+    def validate_quantidade(self, value):
+        livro = self.context.get('livro')
+        if livro:
+            nova_quantidade = livro.quantidade + value
+            if nova_quantidade < 0:
+                raise ValidationError('A quantidade em estoque não pode ser negativa.')
+        return value

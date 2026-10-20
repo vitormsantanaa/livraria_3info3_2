@@ -8,6 +8,7 @@ from .livro import (
     LivroListRetrieveSerializer,
     LivroMaisVendidoSerializer,
     LivroSerializer,
+    LivroAjustarEstoqueSerializer,
 )
 from .compra import (
     CompraCreateUpdateSerializer,
